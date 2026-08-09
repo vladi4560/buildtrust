@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { reviewDirectionSchema } from "../enums.js";
 
 export const createReviewBodySchema = z.object({
   contractId: z.string(),
@@ -13,11 +14,12 @@ export const reviewSchema = z.object({
   authorId: z.string(),
   author: z.object({ id: z.string(), fullName: z.string(), avatarUrl: z.string().nullable() }),
   subjectId: z.string(),
-  direction: z.enum(["CLIENT_TO_PRO", "PRO_TO_CLIENT"]),
+  direction: reviewDirectionSchema,
   rating: z.number().int(),
   comment: z.string().nullable(),
-  createdAt: z.date(),
+  createdAt: z.coerce.date(),
 });
+export type Review = z.infer<typeof reviewSchema>;
 
 export const reviewBreakdownSchema = z.object({
   5: z.number().int(),
@@ -33,3 +35,4 @@ export const userReviewsResponseSchema = z.object({
   breakdown: reviewBreakdownSchema,
   reviews: z.array(reviewSchema),
 });
+export type UserReviewsResponse = z.infer<typeof userReviewsResponseSchema>;

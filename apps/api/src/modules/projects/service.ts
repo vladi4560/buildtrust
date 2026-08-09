@@ -1,7 +1,7 @@
 import type { PrismaClient, Project, User } from "@prisma/client";
 import { ForbiddenError, NotFoundError } from "../../lib/app-error.js";
 import { getContractLedgerTotals } from "../../lib/ledger.js";
-import type { CreateProjectBody } from "./schemas.js";
+import type { CreateProjectBody } from "@buildtrust/shared";
 
 async function latestContractFor(prisma: PrismaClient, projectId: string) {
   return prisma.contract.findFirst({

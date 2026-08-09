@@ -3,6 +3,7 @@ import { z } from "zod";
 export const listProfessionalsQuerySchema = z.object({
   skill: z.string().optional(),
 });
+export type ListProfessionalsQuery = z.infer<typeof listProfessionalsQuerySchema>;
 
 export const professionalIdParamsSchema = z.object({ id: z.string() });
 
@@ -21,10 +22,12 @@ export const professionalSchema = z.object({
   rating: z.number(),
   reviewCount: z.number().int(),
 });
+export type Professional = z.infer<typeof professionalSchema>;
 
 export const portfolioItemSchema = z.object({
   id: z.string(),
   imageUrl: z.string(),
   caption: z.string().nullable(),
-  createdAt: z.date(),
+  createdAt: z.coerce.date(),
 });
+export type PortfolioItem = z.infer<typeof portfolioItemSchema>;

@@ -1,7 +1,5 @@
 import { z } from "zod";
-
-// NOTE: these live in apps/api for Phase 1/2. They move into packages/shared
-// as the single source of truth in Phase 3 (BUILD_SPEC section 11).
+import { userRoleSchema } from "../enums.js";
 
 export const registerBodySchema = z.object({
   fullName: z.string().min(1).max(200),
@@ -18,13 +16,13 @@ export const loginBodySchema = z.object({
 export type LoginBody = z.infer<typeof loginBodySchema>;
 
 export const setRoleBodySchema = z.object({
-  role: z.enum(["CLIENT", "PROFESSIONAL"]),
+  role: userRoleSchema,
 });
 export type SetRoleBody = z.infer<typeof setRoleBodySchema>;
 
 export const userResponseSchema = z.object({
   id: z.string(),
-  role: z.enum(["CLIENT", "PROFESSIONAL"]).nullable(),
+  role: userRoleSchema.nullable(),
   fullName: z.string(),
   email: z.string(),
   phone: z.string().nullable(),
@@ -32,11 +30,13 @@ export const userResponseSchema = z.object({
   location: z.string().nullable(),
   bio: z.string().nullable(),
   verified: z.boolean(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
+export type UserResponse = z.infer<typeof userResponseSchema>;
 
 export const authResponseSchema = z.object({
   user: userResponseSchema,
   token: z.string(),
 });
+export type AuthResponse = z.infer<typeof authResponseSchema>;

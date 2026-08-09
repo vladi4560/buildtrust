@@ -7,7 +7,7 @@ import {
   registerBodySchema,
   setRoleBodySchema,
   userResponseSchema,
-} from "./schemas.js";
+} from "@buildtrust/shared";
 import { createAuthService } from "./service.js";
 
 export async function authRoutes(app: FastifyInstance) {

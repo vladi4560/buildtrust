@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { MockPaymentAdapter } from "../../lib/payment-port.js";
-import { milestoneIdParamsSchema, milestoneResponseSchema } from "./schemas.js";
+import { milestoneIdParamsSchema, milestoneResponseSchema } from "@buildtrust/shared";
 import { createMilestonesService } from "./service.js";
 
 export async function milestoneRoutes(app: FastifyInstance) {

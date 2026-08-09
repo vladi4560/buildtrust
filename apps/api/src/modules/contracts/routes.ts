@@ -1,7 +1,11 @@
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { ForbiddenError } from "../../lib/app-error.js";
-import { contractIdParamsSchema, contractSchema, createContractBodySchema } from "./schemas.js";
+import {
+  contractIdParamsSchema,
+  contractSchema,
+  createContractBodySchema,
+} from "@buildtrust/shared";
 import { createContractsService } from "./service.js";
 
 export async function contractRoutes(app: FastifyInstance) {

@@ -7,7 +7,7 @@ import {
   userIdParamsSchema,
   userResponseSchema,
   userReviewsResponseSchema,
-} from "./schemas.js";
+} from "@buildtrust/shared";
 import { createUsersService } from "./service.js";
 
 export async function userRoutes(app: FastifyInstance) {

@@ -1,2 +1,11 @@
-// Zod schemas, inferred types, and the typed apiClient land here in Phase 3.
-export const SHARED_PACKAGE_PLACEHOLDER = true;
+export * from "./enums.js";
+export * from "./schemas/auth.js";
+export * from "./schemas/users.js";
+export * from "./schemas/professionals.js";
+export * from "./schemas/projects.js";
+export * from "./schemas/contracts.js";
+export * from "./schemas/milestones.js";
+export * from "./schemas/escrow.js";
+export * from "./schemas/wallet.js";
+export * from "./schemas/reviews.js";
+export * from "./api-client.js";

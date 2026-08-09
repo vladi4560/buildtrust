@@ -6,7 +6,7 @@ import {
   portfolioItemSchema,
   professionalIdParamsSchema,
   professionalSchema,
-} from "./schemas.js";
+} from "@buildtrust/shared";
 import { createProfessionalsService } from "./service.js";
 
 export async function professionalRoutes(app: FastifyInstance) {

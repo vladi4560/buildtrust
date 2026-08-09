@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
 import { ConflictError, ForbiddenError, NotFoundError } from "../../lib/app-error.js";
-import type { CreateReviewBody } from "./schemas.js";
+import type { CreateReviewBody } from "@buildtrust/shared";
 
 export function createReviewsService(prisma: PrismaClient) {
   return {

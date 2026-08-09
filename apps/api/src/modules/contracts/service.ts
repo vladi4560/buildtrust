@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
 import { ForbiddenError, NotFoundError } from "../../lib/app-error.js";
-import type { CreateContractBody } from "./schemas.js";
+import type { CreateContractBody } from "@buildtrust/shared";
 
 export function createContractsService(prisma: PrismaClient) {
   return {

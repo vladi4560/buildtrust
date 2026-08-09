@@ -1,6 +1,7 @@
 import { z } from "zod";
+import { ledgerEntryTypeSchema } from "../enums.js";
 
-const transactionTypeSchema = z.enum(["RESERVE", "RELEASE", "REFUND"]);
+const transactionTypeSchema = ledgerEntryTypeSchema.exclude(["DEPOSIT"]);
 
 export const transactionSchema = z.object({
   id: z.string(),
@@ -13,10 +14,12 @@ export const transactionSchema = z.object({
   projectTitle: z.string(),
   milestoneId: z.string().nullable(),
   milestoneTitle: z.string().nullable(),
-  createdAt: z.date(),
+  createdAt: z.coerce.date(),
 });
+export type Transaction = z.infer<typeof transactionSchema>;
 
 export const walletResponseSchema = z.object({
   balance: z.number().int(),
   transactions: z.array(transactionSchema),
 });
+export type WalletResponse = z.infer<typeof walletResponseSchema>;

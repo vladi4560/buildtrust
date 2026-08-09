@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { contractStatusSchema, milestoneStatusSchema, projectStatusSchema } from "../enums.js";
 
 export const createProjectBodySchema = z.object({
   title: z.string().min(1).max(200),
@@ -10,16 +11,6 @@ export type CreateProjectBody = z.infer<typeof createProjectBodySchema>;
 
 export const projectIdParamsSchema = z.object({ id: z.string() });
 
-const projectStatusSchema = z.enum(["PLANNING", "IN_PROGRESS", "COMPLETED", "CANCELLED"]);
-const milestoneStatusSchema = z.enum([
-  "PENDING",
-  "IN_PROGRESS",
-  "SUBMITTED",
-  "APPROVED",
-  "RELEASED",
-]);
-const contractStatusSchema = z.enum(["DRAFT", "ACTIVE", "COMPLETED", "DISPUTED"]);
-
 export const projectSummarySchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -29,8 +20,9 @@ export const projectSummarySchema = z.object({
   budgetPlanned: z.number().int(),
   spent: z.number().int(),
   progressPercent: z.number(),
-  createdAt: z.date(),
+  createdAt: z.coerce.date(),
 });
+export type ProjectSummary = z.infer<typeof projectSummarySchema>;
 
 const milestoneSummarySchema = z.object({
   id: z.string(),
@@ -45,8 +37,8 @@ const activeContractSummarySchema = z.object({
   professionalId: z.string(),
   amount: z.number().int(),
   status: contractStatusSchema,
-  startDate: z.date(),
-  estimatedEnd: z.date(),
+  startDate: z.coerce.date(),
+  estimatedEnd: z.coerce.date(),
   workingDays: z.number().int(),
   milestones: z.array(milestoneSummarySchema),
 });
@@ -54,3 +46,4 @@ const activeContractSummarySchema = z.object({
 export const projectDetailSchema = projectSummarySchema.extend({
   activeContract: activeContractSummarySchema.nullable(),
 });
+export type ProjectDetail = z.infer<typeof projectDetailSchema>;

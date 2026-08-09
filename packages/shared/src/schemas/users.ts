@@ -1,6 +1,4 @@
 import { z } from "zod";
-import { userResponseSchema } from "../auth/schemas.js";
-import { userReviewsResponseSchema } from "../reviews/schemas.js";
 
 export const updateMeBodySchema = z.object({
   fullName: z.string().min(1).max(200).optional(),
@@ -13,5 +11,3 @@ export const updateMeBodySchema = z.object({
 export type UpdateMeBody = z.infer<typeof updateMeBodySchema>;
 
 export const userIdParamsSchema = z.object({ id: z.string() });
-
-export { userResponseSchema, userReviewsResponseSchema };

@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { createReviewBodySchema, reviewSchema } from "./schemas.js";
+import { createReviewBodySchema, reviewSchema } from "@buildtrust/shared";
 import { createReviewsService } from "./service.js";
 
 export async function reviewRoutes(app: FastifyInstance) {

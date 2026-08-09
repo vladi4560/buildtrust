@@ -7,7 +7,7 @@ import {
   projectDetailSchema,
   projectIdParamsSchema,
   projectSummarySchema,
-} from "./schemas.js";
+} from "@buildtrust/shared";
 import { createProjectsService } from "./service.js";
 
 export async function projectRoutes(app: FastifyInstance) {

@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
 import { ConflictError } from "../../lib/app-error.js";
-import type { UpdateMeBody } from "./schemas.js";
+import type { UpdateMeBody } from "@buildtrust/shared";
 
 export function createUsersService(prisma: PrismaClient) {
   return {

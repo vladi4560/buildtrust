@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { MockPaymentAdapter } from "../../lib/payment-port.js";
-import { depositBodySchema, depositResponseSchema } from "./schemas.js";
+import { depositBodySchema, depositResponseSchema } from "@buildtrust/shared";
 import { createEscrowService } from "./service.js";
 
 export async function escrowRoutes(app: FastifyInstance) {

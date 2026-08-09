@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { walletResponseSchema } from "./schemas.js";
+import { walletResponseSchema } from "@buildtrust/shared";
 import { createWalletService } from "./service.js";
 
 export async function walletRoutes(app: FastifyInstance) {

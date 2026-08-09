@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { contractStatusSchema, milestoneStatusSchema } from "../enums.js";
 
 export const createContractBodySchema = z
   .object({
@@ -21,15 +22,6 @@ export type CreateContractBody = z.infer<typeof createContractBodySchema>;
 
 export const contractIdParamsSchema = z.object({ id: z.string() });
 
-const milestoneStatusSchema = z.enum([
-  "PENDING",
-  "IN_PROGRESS",
-  "SUBMITTED",
-  "APPROVED",
-  "RELEASED",
-]);
-const contractStatusSchema = z.enum(["DRAFT", "ACTIVE", "COMPLETED", "DISPUTED"]);
-
 export const milestoneSchema = z.object({
   id: z.string(),
   contractId: z.string(),
@@ -37,9 +29,10 @@ export const milestoneSchema = z.object({
   title: z.string(),
   amount: z.number().int(),
   status: milestoneStatusSchema,
-  approvedAt: z.date().nullable(),
-  releasedAt: z.date().nullable(),
+  approvedAt: z.coerce.date().nullable(),
+  releasedAt: z.coerce.date().nullable(),
 });
+export type MilestoneResponse = z.infer<typeof milestoneSchema>;
 
 export const contractSchema = z.object({
   id: z.string(),
@@ -47,11 +40,12 @@ export const contractSchema = z.object({
   clientId: z.string(),
   professionalId: z.string(),
   amount: z.number().int(),
-  startDate: z.date(),
-  estimatedEnd: z.date(),
+  startDate: z.coerce.date(),
+  estimatedEnd: z.coerce.date(),
   workingDays: z.number().int(),
   scope: z.string(),
   status: contractStatusSchema,
   version: z.number().int(),
   milestones: z.array(milestoneSchema),
 });
+export type ContractResponse = z.infer<typeof contractSchema>;

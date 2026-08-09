@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import type { PrismaClient } from "@prisma/client";
 import { ConflictError, UnauthorizedError } from "../../lib/app-error.js";
-import type { LoginBody, RegisterBody, SetRoleBody } from "./schemas.js";
+import type { LoginBody, RegisterBody, SetRoleBody } from "@buildtrust/shared";
 
 const BCRYPT_ROUNDS = 12;
 
