@@ -1,0 +1,205 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CLIENT
+  PROFESSIONAL
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ContractStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  DISPUTED
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  SUBMITTED
+  APPROVED
+  RELEASED
+}
+
+enum LedgerEntryType {
+  DEPOSIT
+  RESERVE
+  RELEASE
+  REFUND
+}
+
+enum LedgerAccount {
+  CLIENT_ESCROW
+  PLATFORM_HOLD
+  PROFESSIONAL_PAYABLE
+}
+
+enum ReviewDirection {
+  CLIENT_TO_PRO
+  PRO_TO_CLIENT
+}
+
+model User {
+  id           String    @id @default(cuid())
+  role         UserRole?
+  fullName     String
+  email        String    @unique
+  phone        String?
+  passwordHash String
+  avatarUrl    String?
+  location     String?
+  bio          String?
+  verified     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  professionalProfile ProfessionalProfile?
+  projects            Project[]            @relation("ClientProjects")
+  contractsAsClient   Contract[]           @relation("ClientContracts")
+  contractsAsPro      Contract[]           @relation("ProfessionalContracts")
+  reviewsAuthored     Review[]             @relation("ReviewAuthor")
+  reviewsReceived     Review[]             @relation("ReviewSubject")
+
+  @@map("users")
+}
+
+model ProfessionalProfile {
+  userId          String   @id
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialty       String
+  yearsExperience Int
+  skills          String[]
+  onTimePercent   Int      @default(100)
+  projectsCount   Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  portfolioItems PortfolioItem[]
+
+  @@map("professional_profiles")
+}
+
+model PortfolioItem {
+  id             String              @id @default(cuid())
+  professionalId String
+  professional   ProfessionalProfile @relation(fields: [professionalId], references: [userId], onDelete: Cascade)
+  imageUrl       String
+  caption        String?
+  createdAt      DateTime            @default(now())
+
+  @@index([professionalId])
+  @@map("portfolio_items")
+}
+
+model Project {
+  id             String        @id @default(cuid())
+  clientId       String
+  client         User          @relation("ClientProjects", fields: [clientId], references: [id], onDelete: Cascade)
+  title          String
+  sizeLabel      String?
+  description    String?
+  status         ProjectStatus @default(PLANNING)
+  budgetPlanned  Int
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  contracts Contract[]
+
+  @@index([clientId])
+  @@map("projects")
+}
+
+model Contract {
+  id             String         @id @default(cuid())
+  projectId      String
+  project        Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  clientId       String
+  client         User           @relation("ClientContracts", fields: [clientId], references: [id])
+  professionalId String
+  professional   User           @relation("ProfessionalContracts", fields: [professionalId], references: [id])
+  amount         Int
+  startDate      DateTime
+  estimatedEnd   DateTime
+  workingDays    Int
+  scope          String
+  status         ContractStatus @default(DRAFT)
+  version        Int            @default(1)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  milestones   Milestone[]
+  ledgerEntries LedgerEntry[]
+  reviews      Review[]
+
+  @@index([projectId])
+  @@index([clientId])
+  @@index([professionalId])
+  @@map("contracts")
+}
+
+model Milestone {
+  id          String          @id @default(cuid())
+  contractId  String
+  contract    Contract        @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  order       Int
+  title       String
+  amount      Int
+  status      MilestoneStatus @default(PENDING)
+  approvedAt  DateTime?
+  releasedAt  DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  ledgerEntries LedgerEntry[]
+
+  @@unique([contractId, order])
+  @@map("milestones")
+}
+
+model LedgerEntry {
+  id            String          @id @default(cuid())
+  contractId    String
+  contract      Contract        @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  milestoneId   String?
+  milestone     Milestone?      @relation(fields: [milestoneId], references: [id])
+  type          LedgerEntryType
+  debitAccount  LedgerAccount
+  creditAccount LedgerAccount
+  amount        Int
+  createdAt     DateTime        @default(now())
+
+  @@index([contractId])
+  @@index([milestoneId])
+  @@map("ledger_entries")
+}
+
+model Review {
+  id         String          @id @default(cuid())
+  contractId String
+  contract   Contract        @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User            @relation("ReviewAuthor", fields: [authorId], references: [id])
+  subjectId  String
+  subject    User            @relation("ReviewSubject", fields: [subjectId], references: [id])
+  direction  ReviewDirection
+  rating     Int
+  comment    String?
+  createdAt  DateTime        @default(now())
+
+  @@index([contractId])
+  @@index([subjectId])
+  @@map("reviews")
+}
