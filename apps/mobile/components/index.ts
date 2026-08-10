@@ -1,5 +1,12 @@
+export * from "./avatar";
 export * from "./button";
 export * from "./card";
+export * from "./chip";
+export * from "./progress-bar";
+export * from "./project-card";
+export * from "./rating-breakdown";
+export * from "./screen-states";
+export * from "./star-rating";
+export * from "./status-badge";
 export * from "./text-field";
-// Chip, StarRating, RatingBreakdown, ProgressBar, StatusBadge, Avatar,
-// TransactionRow land here in Phase 5 when the screens that use them are built.
+export * from "./transaction-row";
