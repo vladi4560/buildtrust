@@ -24,7 +24,7 @@ function SettingsRow({
   return <Pressable onPress={onPress}>{content}</Pressable>;
 }
 
-export default function More() {
+export default function Settings() {
   const router = useRouter();
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
@@ -37,6 +37,13 @@ export default function More() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView contentContainerClassName="gap-6 px-6 py-6">
+        <View className="flex-row items-center justify-between">
+          <Text className="text-2xl font-bold text-ink">Settings</Text>
+          <Text className="text-sm font-medium text-muted" onPress={() => router.back()}>
+            Back
+          </Text>
+        </View>
+
         <View className="flex-row items-center gap-4">
           <Avatar name={user?.fullName ?? ""} imageUrl={user?.avatarUrl} size={56} />
           <View>

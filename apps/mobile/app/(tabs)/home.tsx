@@ -1,7 +1,15 @@
-import { RefreshControl, ScrollView, Text, View } from "react-native";
+import { Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { Button, Card, EmptyState, ErrorState, LoadingState, ProjectCard } from "../../components";
+import {
+  Avatar,
+  Button,
+  Card,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  ProjectCard,
+} from "../../components";
 import { useProjects, useWallet } from "../../features";
 import { formatMoney, useAuthStore } from "../../lib";
 
@@ -31,9 +39,14 @@ export default function Home() {
           contentContainerClassName="gap-6 px-6 py-6"
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
-          <View>
-            <Text className="text-sm text-muted">Welcome back,</Text>
-            <Text className="text-2xl font-bold text-ink">{user?.fullName}</Text>
+          <View className="flex-row items-center justify-between">
+            <View>
+              <Text className="text-sm text-muted">Welcome back,</Text>
+              <Text className="text-2xl font-bold text-ink">{user?.fullName}</Text>
+            </View>
+            <Pressable onPress={() => router.push("/settings")}>
+              <Avatar name={user?.fullName ?? ""} imageUrl={user?.avatarUrl} size={44} />
+            </Pressable>
           </View>
 
           <Card onPress={() => router.push("/(tabs)/wallet")}>

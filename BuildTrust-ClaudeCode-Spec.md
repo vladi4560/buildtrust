@@ -97,6 +97,7 @@ Fill in timestamps, indexes, and relations. Enums shown inline.
 - **User** — `id, role (CLIENT | PROFESSIONAL), fullName, email (unique), phone, passwordHash, avatarUrl?, location?, bio?, verified (bool)`
 - **ProfessionalProfile** — `userId (1:1), specialty (e.g. "Flooring Specialist"), yearsExperience, skills (string[]), onTimePercent, projectsCount` (derive counts where possible)
 - **PortfolioItem** — `id, professionalId, imageUrl, caption?`
+- **Category** — `id, name, slug, icon?` — the trade taxonomy (Electrical, Plumbing, Flooring, Painting, HVAC, Carpentry, Kitchens, Structural, Waterproofing, Aluminum & Glass, Drywall); professionals link many-to-many via `ProfessionalCategory`. Same taxonomy the project-phase engine will use.
 - **Project** — `id, clientId, title, sizeLabel? (e.g. "Living Room (25m²)"), description?, status (PLANNING | IN_PROGRESS | COMPLETED | CANCELLED), budgetPlanned (agorot)`
 - **Contract** — `id, projectId, clientId, professionalId, amount (agorot), startDate, estimatedEnd, workingDays, scope, status (DRAFT | ACTIVE | COMPLETED | DISPUTED), version` — **immutable once ACTIVE**; edits create a new version
 - **Milestone** — `id, contractId, order, title, amount (agorot), status (PENDING | IN_PROGRESS | SUBMITTED | APPROVED | RELEASED)`, `approvedAt?, releasedAt?`
@@ -129,7 +130,8 @@ Fill in timestamps, indexes, and relations. Enums shown inline.
 
 **Profile / professionals**
 - `PATCH /me` — edit profile (name, phone, email, location, bio, avatar)
-- `GET /professionals` — browse/search (filter by skill)
+- `GET /professionals` — browse/search; accepts `category`, `search`, `sort` query params (used by the Discover tab)
+- `GET /categories` — trade taxonomy (used by the Discover tab)
 - `GET /professionals/:id` — profile + stats + skills
 - `GET /professionals/:id/portfolio`
 - `GET /users/:id/reviews`
@@ -146,6 +148,10 @@ Fill in timestamps, indexes, and relations. Enums shown inline.
 **Wallet**
 - `GET /wallet` — escrow balance + transaction feed (derived from ledger)
 - `POST /escrow/deposit` — fund a contract (via `PaymentPort`)
+
+**Home (hub aggregates)**
+- `GET /home/summary` — released / inEscrow / remaining / committed totals (agorot)
+- `GET /me/action-items` — milestones awaiting the client's approval + contracts awaiting an escrow deposit
 
 **Reviews**
 - `POST /reviews` — direction-aware two-way rating
@@ -167,7 +173,7 @@ Sample exact hex from the mockup image; these are the targets:
 - **Shape:** cards `rounded-2xl` (~16px) with soft shadow; inputs `rounded-xl`; generous padding.
 - **Currency:** symbol `₪` before the amount, thousands separators. Budgets show whole shekels (`₪120,000`); the wallet balance shows 2 decimals (`₪28,750.00`). Use `Intl.NumberFormat`.
 
-**Shared components to build first:** `Button` (filled/outline), `TextField`, `Card`, `Chip` (skills), `StarRating`, `RatingBreakdown` (5→1 bars), `ProgressBar`, `StatusBadge` (In Progress / Planning / Verified), `BottomTabBar`, `Avatar`, `TransactionRow`.
+**Shared components to build first:** `Button` (filled/outline), `TextField`, `Card`, `Chip` (skills), `StarRating`, `RatingBreakdown` (5→1 bars), `ProgressBar`, `StatusBadge` (In Progress / Planning / Verified), `BottomTabBar` (5 icon tabs — see §9), `Avatar`, `TransactionRow`, `CategoryTile`, `ProCard`, `ActionRequiredList`, `BudgetOverviewCard`.
 
 Mockups are **English, LTR**. Keep strings in one place so Hebrew/RTL can be added later, but v1 ships English LTR.
 
@@ -175,20 +181,23 @@ Mockups are **English, LTR**. Keep strings in one place so Hebrew/RTL can be add
 
 ## 8. Screens (each mockup → route, data, states)
 
+> Updated since first draft: there is now a dedicated **Discover** marketplace tab (row 13), Home is a **management hub**, and Settings opens from the Home header avatar (no "More" tab). See §9 for navigation.
+
 | # | Screen | Route | Data / endpoint | Notes |
 |---|--------|-------|-----------------|-------|
 | 1 | Landing | `/(auth)/landing` | — | Get Started / Log In |
 | 2 | Login | `/(auth)/login` | `POST /auth/login` | email + password, show/hide toggle |
 | 3 | Register | `/(auth)/register` | `POST /auth/register` | + T&S checkbox |
 | 4 | Role select | `/(auth)/role` | `POST /auth/role` | two selectable cards, Continue |
-| 5 | Home (client) | `/(tabs)/home` | `GET /projects`, `GET /wallet` | budget card, project cards w/ progress, New Project |
+| 5 | Home (hub) | `/(tabs)/home` | `GET /home/summary`, `GET /me/action-items`, `GET /projects` | Action Required list, budget overview, richer project cards, New Project; slim search bar routes to Discover; header avatar → Settings |
 | 6 | Project detail | `/project/[id]` | `GET /projects/:id`, `GET /contracts/:id` | tabs: Overview (real), Payments (milestones+ledger), Timeline (dates), Files (stub) |
 | 7 | Pro profile | `/professional/[id]` | `GET /professionals/:id` | stats row, About, Message/Hire Me |
 | 8 | Portfolio/Reviews | `/professional/[id]` tabs | portfolio + reviews endpoints | grid + rating breakdown |
 | 9 | Edit profile | `/settings/profile` | `PATCH /me` | react-hook-form, Save Changes |
 | 10 | Wallet | `/(tabs)/wallet` | `GET /wallet` | escrow balance card (locked), transaction feed |
 | 11 | Reviews | `/reviews/[userId]` | `GET /users/:id/reviews` | big score + breakdown + review cards |
-| 12 | Settings | `/(tabs)/more` | `GET /auth/me` | list rows, Verification status, Log Out |
+| 12 | Settings | `/settings` | `GET /auth/me` | opened from the Home header avatar (no More tab); list rows, Verification, Log Out |
+| 13 | Discover (marketplace) | `/(tabs)/discover` | `GET /categories`, `GET /professionals?category&search&sort` | search bar, filter/sort chips, trade-category grid, top-rated pro list → routes to pro profile |
 
 Every data screen needs **loading, empty, and error** states, plus pull-to-refresh on lists.
 
@@ -205,15 +214,16 @@ app/
 │  ├─ register.tsx
 │  └─ role.tsx
 ├─ (tabs)/
-│  ├─ _layout.tsx           # bottom tab bar: Home, Projects, Messages, Wallet, More
-│  ├─ home.tsx
+│  ├─ _layout.tsx           # bottom tab bar (icons): Home · Discover · Projects · Messages · Wallet
+│  ├─ home.tsx              # management hub (see §8)
+│  ├─ discover.tsx          # marketplace: search + trade categories + pro list
 │  ├─ projects.tsx
 │  ├─ messages.tsx          # stub in v1
-│  ├─ wallet.tsx
-│  └─ more.tsx              # Settings list
+│  └─ wallet.tsx
 ├─ project/[id].tsx
 ├─ professional/[id].tsx
 ├─ reviews/[userId].tsx
+├─ settings/index.tsx       # settings list — opened from the Home header avatar (no "More" tab)
 └─ settings/profile.tsx
 ```
 
@@ -260,4 +270,4 @@ All amounts seeded in **agorot**.
 
 ## 13. Definition of done (v1)
 
-The app runs on Expo; a user can register, choose a role, and log in; all 12 mockup screens are reachable and render seeded data matching the designs; the escrow flow is correct end to end (deposit reserves funds; approving a milestone releases exactly that amount to the professional and updates the wallet); money is agorot-accurate throughout; typecheck, lint, and tests are green.
+The app runs on Expo; a user can register, choose a role, and log in; all 12 mockup screens plus the Discover tab are reachable (bottom nav: Home · Discover · Projects · Messages · Wallet, Settings behind the avatar) and render seeded data matching the designs; the escrow flow is correct end to end (deposit reserves funds; approving a milestone releases exactly that amount to the professional and updates the wallet); money is agorot-accurate throughout; typecheck, lint, and tests are green.
