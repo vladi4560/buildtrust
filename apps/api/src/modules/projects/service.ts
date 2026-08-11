@@ -1,36 +1,58 @@
 import type { PrismaClient, Project, User } from "@prisma/client";
+import type { CreateProjectBody } from "@buildtrust/shared";
 import { ForbiddenError, NotFoundError } from "../../lib/app-error.js";
 import { getContractLedgerTotals } from "../../lib/ledger.js";
-import type { CreateProjectBody } from "@buildtrust/shared";
+import { createReviewsService } from "../reviews/service.js";
 
 async function latestContractFor(prisma: PrismaClient, projectId: string) {
   return prisma.contract.findFirst({
     where: { projectId },
     orderBy: { createdAt: "desc" },
-    include: { milestones: { orderBy: { order: "asc" } } },
+    include: {
+      milestones: { orderBy: { order: "asc" } },
+      professional: { select: { id: true, fullName: true, avatarUrl: true } },
+    },
   });
 }
 
-async function toProjectSummary(prisma: PrismaClient, project: Project) {
-  const contract = await latestContractFor(prisma, project.id);
-  const spent = contract ? (await getContractLedgerTotals(prisma, contract.id)).released : 0;
-  const progressPercent = project.budgetPlanned === 0 ? 0 : (spent / project.budgetPlanned) * 100;
-
-  return {
-    id: project.id,
-    title: project.title,
-    sizeLabel: project.sizeLabel,
-    description: project.description,
-    status: project.status,
-    budgetPlanned: project.budgetPlanned,
-    spent,
-    progressPercent,
-    createdAt: project.createdAt,
-    contract,
-  };
-}
-
 export function createProjectsService(prisma: PrismaClient) {
+  const reviewsService = createReviewsService(prisma);
+
+  async function toProjectSummary(project: Project) {
+    const contract = await latestContractFor(prisma, project.id);
+    const spent = contract ? (await getContractLedgerTotals(prisma, contract.id)).released : 0;
+    const progressPercent = project.budgetPlanned === 0 ? 0 : (spent / project.budgetPlanned) * 100;
+
+    const contractor = contract
+      ? {
+          id: contract.professional.id,
+          fullName: contract.professional.fullName,
+          avatarUrl: contract.professional.avatarUrl,
+          rating: (await reviewsService.getStatsForUser(contract.professional.id)).average,
+        }
+      : null;
+
+    const nextMilestoneRow = contract?.milestones.find((m) => m.status !== "RELEASED") ?? null;
+    const nextMilestone = nextMilestoneRow
+      ? { title: nextMilestoneRow.title, dueDate: nextMilestoneRow.dueDate }
+      : null;
+
+    return {
+      id: project.id,
+      title: project.title,
+      sizeLabel: project.sizeLabel,
+      description: project.description,
+      status: project.status,
+      budgetPlanned: project.budgetPlanned,
+      spent,
+      progressPercent,
+      createdAt: project.createdAt,
+      contractor,
+      nextMilestone,
+      contract,
+    };
+  }
+
   return {
     async listForUser(user: Pick<User, "id" | "role">) {
       const projects =
@@ -44,9 +66,7 @@ export function createProjectsService(prisma: PrismaClient) {
               orderBy: { createdAt: "desc" },
             });
 
-      const summaries = await Promise.all(
-        projects.map((project) => toProjectSummary(prisma, project)),
-      );
+      const summaries = await Promise.all(projects.map((project) => toProjectSummary(project)));
       return summaries.map(({ contract: _contract, ...summary }) => summary);
     },
 
@@ -60,7 +80,7 @@ export function createProjectsService(prisma: PrismaClient) {
         throw new NotFoundError("Project not found");
       }
 
-      const summary = await toProjectSummary(prisma, project);
+      const summary = await toProjectSummary(project);
       const isClient = project.clientId === requestingUserId;
       const isProfessional = summary.contract?.professionalId === requestingUserId;
       if (!isClient && !isProfessional) {

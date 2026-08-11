@@ -152,6 +152,7 @@ async function main() {
         title: "Sanding & Subfloor Prep",
         amount: 2_975_00,
         status: "RELEASED",
+        dueDate: new Date("2024-05-11"),
         approvedAt: new Date("2024-05-11"),
         releasedAt: new Date("2024-05-12"),
       },
@@ -163,6 +164,7 @@ async function main() {
         title: "Parquet Installation",
         amount: 2_550_00,
         status: "RELEASED",
+        dueDate: new Date("2024-05-13"),
         approvedAt: new Date("2024-05-13"),
         releasedAt: new Date("2024-05-14"),
       },
@@ -174,6 +176,7 @@ async function main() {
         title: "Finishing & Trim",
         amount: 2_975_00,
         status: "IN_PROGRESS",
+        dueDate: new Date("2024-05-16"),
       },
     }),
   ]);
@@ -224,6 +227,7 @@ async function main() {
         title: "Deposit & Demo",
         amount: 5_000_00,
         status: "RELEASED",
+        dueDate: new Date("2024-06-03"),
         approvedAt: new Date("2024-06-03"),
         releasedAt: new Date("2024-06-04"),
       },
@@ -235,6 +239,7 @@ async function main() {
         title: "Plumbing & Tiling",
         amount: 15_000_00,
         status: "PENDING",
+        dueDate: new Date("2024-06-20"),
       },
     }),
     prisma.milestone.create({
@@ -244,6 +249,7 @@ async function main() {
         title: "Fixtures & Finishing",
         amount: 15_000_00,
         status: "PENDING",
+        dueDate: new Date("2024-07-15"),
       },
     }),
   ]);
@@ -296,6 +302,7 @@ async function main() {
       title: "Cabinet Installation",
       amount: 3_000_00,
       status: "IN_PROGRESS",
+      dueDate: new Date("2024-07-10"),
     },
   });
 

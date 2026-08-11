@@ -11,6 +11,18 @@ export type CreateProjectBody = z.infer<typeof createProjectBodySchema>;
 
 export const projectIdParamsSchema = z.object({ id: z.string() });
 
+const contractorSchema = z.object({
+  id: z.string(),
+  fullName: z.string(),
+  avatarUrl: z.string().nullable(),
+  rating: z.number(),
+});
+
+const nextMilestoneSchema = z.object({
+  title: z.string(),
+  dueDate: z.coerce.date().nullable(),
+});
+
 export const projectSummarySchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -21,6 +33,8 @@ export const projectSummarySchema = z.object({
   spent: z.number().int(),
   progressPercent: z.number(),
   createdAt: z.coerce.date(),
+  contractor: contractorSchema.nullable(),
+  nextMilestone: nextMilestoneSchema.nullable(),
 });
 export type ProjectSummary = z.infer<typeof projectSummarySchema>;
 

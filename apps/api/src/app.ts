@@ -7,6 +7,7 @@ import { authRoutes } from "./modules/auth/routes.js";
 import { categoryRoutes } from "./modules/categories/routes.js";
 import { contractRoutes } from "./modules/contracts/routes.js";
 import { escrowRoutes } from "./modules/escrow/routes.js";
+import { homeRoutes } from "./modules/home/routes.js";
 import { milestoneRoutes } from "./modules/milestones/routes.js";
 import { professionalRoutes } from "./modules/professionals/routes.js";
 import { projectRoutes } from "./modules/projects/routes.js";
@@ -38,6 +39,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(milestoneRoutes, { prefix: "/milestones" });
   await app.register(escrowRoutes, { prefix: "/escrow" });
   await app.register(walletRoutes, { prefix: "/wallet" });
+  await app.register(homeRoutes);
 
   return app;
 }

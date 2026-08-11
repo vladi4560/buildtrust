@@ -39,7 +39,13 @@ export async function projectRoutes(app: FastifyInstance) {
         throw new ForbiddenError("Only clients can create projects");
       }
       const project = await projectsService.create(user.id, request.body);
-      reply.status(201).send({ ...project, spent: 0, progressPercent: 0 });
+      reply.status(201).send({
+        ...project,
+        spent: 0,
+        progressPercent: 0,
+        contractor: null,
+        nextMilestone: null,
+      });
     },
   );
 

@@ -182,6 +182,7 @@ model Milestone {
   title       String
   amount      Int
   status      MilestoneStatus @default(PENDING)
+  dueDate     DateTime?
   approvedAt  DateTime?
   releasedAt  DateTime?
   createdAt   DateTime        @default(now())

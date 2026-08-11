@@ -3,6 +3,7 @@ import { authResponseSchema, userResponseSchema } from "./schemas/auth.js";
 import { categoriesResponseSchema } from "./schemas/categories.js";
 import { contractSchema } from "./schemas/contracts.js";
 import { depositResponseSchema } from "./schemas/escrow.js";
+import { actionItemsResponseSchema, homeSummarySchema } from "./schemas/home.js";
 import { milestoneResponseSchema } from "./schemas/milestones.js";
 import { portfolioItemSchema, professionalSchema } from "./schemas/professionals.js";
 import { projectDetailSchema, projectSummarySchema } from "./schemas/projects.js";
@@ -24,6 +25,7 @@ import type {
   PortfolioItem,
 } from "./schemas/professionals.js";
 import type { Category } from "./schemas/categories.js";
+import type { ActionItem, HomeSummary } from "./schemas/home.js";
 import type { CreateProjectBody, ProjectDetail, ProjectSummary } from "./schemas/projects.js";
 import type { CreateReviewBody, Review, UserReviewsResponse } from "./schemas/reviews.js";
 import type { UpdateMeBody } from "./schemas/users.js";
@@ -109,6 +111,12 @@ export function createApiClient(config: ApiClientConfig) {
     categories: {
       list: (): Promise<Category[]> =>
         request("GET", "/categories", { schema: categoriesResponseSchema }),
+    },
+    home: {
+      summary: (): Promise<HomeSummary> =>
+        request("GET", "/home/summary", { schema: homeSummarySchema }),
+      actionItems: (): Promise<ActionItem[]> =>
+        request("GET", "/me/action-items", { schema: actionItemsResponseSchema }),
     },
     users: {
       updateMe: (body: UpdateMeBody): Promise<UserResponse> =>
