@@ -2,6 +2,12 @@ import { z } from "zod";
 import { authResponseSchema, userResponseSchema } from "./schemas/auth.js";
 import { categoriesResponseSchema } from "./schemas/categories.js";
 import { contractSchema } from "./schemas/contracts.js";
+import {
+  conversationDetailSchema,
+  conversationsResponseSchema,
+  messagesPageSchema,
+  messageSchema,
+} from "./schemas/conversations.js";
 import { depositResponseSchema } from "./schemas/escrow.js";
 import { actionItemsResponseSchema, homeSummarySchema } from "./schemas/home.js";
 import { milestoneResponseSchema } from "./schemas/milestones.js";
@@ -17,6 +23,15 @@ import type {
   UserResponse,
 } from "./schemas/auth.js";
 import type { ContractResponse, CreateContractBody } from "./schemas/contracts.js";
+import type {
+  ConversationDetail,
+  ConversationSummary,
+  CreateConversationBody,
+  MessagesPage,
+  MessagesQuery,
+  MessageResponse,
+  SendMessageBody,
+} from "./schemas/conversations.js";
 import type { DepositBody } from "./schemas/escrow.js";
 import type { MilestoneResponse } from "./schemas/contracts.js";
 import type {
@@ -163,6 +178,24 @@ export function createApiClient(config: ApiClientConfig) {
     reviews: {
       create: (body: CreateReviewBody): Promise<Review> =>
         request("POST", "/reviews", { body, schema: reviewSchema }),
+    },
+    conversations: {
+      list: (): Promise<ConversationSummary[]> =>
+        request("GET", "/conversations", { schema: conversationsResponseSchema }),
+      getOrCreate: (body: CreateConversationBody): Promise<ConversationDetail> =>
+        request("POST", "/conversations", { body, schema: conversationDetailSchema }),
+      messages: (id: string, query?: MessagesQuery): Promise<MessagesPage> =>
+        request("GET", `/conversations/${id}/messages`, {
+          query: {
+            before: query?.before?.toISOString(),
+            limit: query?.limit?.toString(),
+          },
+          schema: messagesPageSchema,
+        }),
+      send: (id: string, body: SendMessageBody): Promise<MessageResponse> =>
+        request("POST", `/conversations/${id}/messages`, { body, schema: messageSchema }),
+      markRead: (id: string): Promise<{ ok: true }> =>
+        request("POST", `/conversations/${id}/read`, { schema: z.object({ ok: z.literal(true) }) }),
     },
   };
 }

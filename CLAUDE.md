@@ -5,19 +5,22 @@ client money and releases it against approved milestones, with two-way ratings.
 Two roles: **Client / Homeowner** and **Contractor / Professional**.
 
 **Full spec lives in `BUILD_SPEC.md`. Read it before building.** This file is the
-short list of rules that apply to *every* session — never violate them.
+short list of rules that apply to _every_ session — never violate them.
 
 ## Stack
+
 - Monorepo: pnpm workspaces + Turborepo (`apps/api`, `apps/mobile`, `packages/shared`)
 - Backend: Fastify + Prisma + PostgreSQL, TypeScript strict
 - Mobile: Expo + expo-router + NativeWind + TanStack Query + Zustand
 - Shared: Zod schemas + inferred types + typed apiClient
 
 ## Commands (defined in Phase 0)
+
 - `pnpm dev` — run api + mobile
 - `pnpm typecheck` · `pnpm lint` · `pnpm build` · `pnpm test`
 
 ## Golden rules
+
 1. **TypeScript strict everywhere.** No `any` without a comment justifying it.
 2. **`packages/shared` Zod schemas are the single source of truth** for every
    request/response. Backend validates against them; the app imports the inferred
@@ -33,12 +36,14 @@ short list of rules that apply to *every* session — never violate them.
    lint + tests) and committed before starting the next. Stop and check in before
    each new phase.
 7. **Stay in scope (BUILD_SPEC §12).** Do NOT build the 14-trade sequencing engine,
-   budget analytics, scheduling cascade, real payments, chat, file uploads, or
-   OAuth in v1. Stub what the mockups show but v1 doesn't implement.
+   budget analytics, scheduling cascade, real payments, file uploads, or OAuth in
+   v1. Stub what the mockups show but v1 doesn't implement. Messaging/chat is an
+   exception — it was added in-scope post-kickoff (see BUILD_SPEC §12).
 8. If reality forces an architectural deviation from the spec, **stop and explain
    the trade-off first** — don't improvise silently.
 
 ## Definition of done (v1)
+
 App runs on Expo; register → pick role → log in works; all 12 mockup screens are
 reachable with seeded data matching the designs; escrow flow is correct end to end
 (deposit reserves, milestone approval releases exactly that amount to the

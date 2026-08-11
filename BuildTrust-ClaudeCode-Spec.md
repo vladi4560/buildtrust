@@ -1,8 +1,8 @@
 # BuildTrust — Claude Code Build Spec
 
 > Paste this whole file as your first message to Claude Code (or save it as
-> `BUILD_SPEC.md` at the repo root and start with: *"Read BUILD_SPEC.md and
-> begin Phase 0. Follow the working rules in section 0."*)
+> `BUILD_SPEC.md` at the repo root and start with: _"Read BUILD_SPEC.md and
+> begin Phase 0. Follow the working rules in section 0."_)
 
 ---
 
@@ -39,6 +39,7 @@ Two roles: **Client / Homeowner** and **Contractor / Professional**.
 **Monorepo:** pnpm workspaces + Turborepo.
 
 **Backend (`apps/api`):**
+
 - Fastify + TypeScript (strict)
 - Prisma ORM + PostgreSQL
 - Auth: JWT access token, `bcrypt` password hashing
@@ -48,6 +49,7 @@ Two roles: **Client / Homeowner** and **Contractor / Professional**.
 > This is a **greenfield build — nothing exists yet.** Implement the escrow / contract / milestone engine from scratch to satisfy sections 4–5. Fastify is chosen for solo velocity and low boilerplate; if you'd prefer NestJS's module/DI structure, swap it here and adjust the `apps/api` layout accordingly.
 
 **Frontend (`apps/mobile`):**
+
 - Expo (React Native) + `expo-router` (file-based nav)
 - NativeWind (Tailwind for RN) for styling + design tokens
 - TanStack Query for all server state
@@ -56,6 +58,7 @@ Two roles: **Client / Homeowner** and **Contractor / Professional**.
 - `expo-secure-store` for the JWT
 
 **Shared (`packages/shared`):**
+
 - Zod schemas + `z.infer` types for every entity and endpoint
 - A small typed `apiClient` (fetch wrapper) consumed by the app
 
@@ -123,12 +126,14 @@ Fill in timestamps, indexes, and relations. Enums shown inline.
 ## 6. API surface (REST, all validated by shared Zod schemas)
 
 **Auth**
+
 - `POST /auth/register` — fullName, email, phone, password → user + token
 - `POST /auth/login` — email, password → user + token
 - `POST /auth/role` — set role after register (CLIENT | PROFESSIONAL)
 - `GET /auth/me` — current user
 
 **Profile / professionals**
+
 - `PATCH /me` — edit profile (name, phone, email, location, bio, avatar)
 - `GET /professionals` — browse/search; accepts `category`, `search`, `sort` query params (used by the Discover tab)
 - `GET /categories` — trade taxonomy (used by the Discover tab)
@@ -137,6 +142,7 @@ Fill in timestamps, indexes, and relations. Enums shown inline.
 - `GET /users/:id/reviews`
 
 **Projects & contracts**
+
 - `GET /projects` — current user's projects (+ progress %, budget vs spent)
 - `POST /projects`
 - `GET /projects/:id` — with active contract summary
@@ -146,14 +152,17 @@ Fill in timestamps, indexes, and relations. Enums shown inline.
 - `POST /milestones/:id/approve` — client approves → triggers `RELEASE`
 
 **Wallet**
+
 - `GET /wallet` — escrow balance + transaction feed (derived from ledger)
 - `POST /escrow/deposit` — fund a contract (via `PaymentPort`)
 
 **Home (hub aggregates)**
+
 - `GET /home/summary` — released / inEscrow / remaining / committed totals (agorot)
 - `GET /me/action-items` — milestones awaiting the client's approval + contracts awaiting an escrow deposit
 
 **Reviews**
+
 - `POST /reviews` — direction-aware two-way rating
 
 Every endpoint: JWT-guarded except register/login; role-guarded where relevant (only a client can approve a milestone; only the contract's professional can submit one).
@@ -183,21 +192,21 @@ Mockups are **English, LTR**. Keep strings in one place so Hebrew/RTL can be add
 
 > Updated since first draft: there is now a dedicated **Discover** marketplace tab (row 13), Home is a **management hub**, and Settings opens from the Home header avatar (no "More" tab). See §9 for navigation.
 
-| # | Screen | Route | Data / endpoint | Notes |
-|---|--------|-------|-----------------|-------|
-| 1 | Landing | `/(auth)/landing` | — | Get Started / Log In |
-| 2 | Login | `/(auth)/login` | `POST /auth/login` | email + password, show/hide toggle |
-| 3 | Register | `/(auth)/register` | `POST /auth/register` | + T&S checkbox |
-| 4 | Role select | `/(auth)/role` | `POST /auth/role` | two selectable cards, Continue |
-| 5 | Home (hub) | `/(tabs)/home` | `GET /home/summary`, `GET /me/action-items`, `GET /projects` | Action Required list, budget overview, richer project cards, New Project; slim search bar routes to Discover; header avatar → Settings |
-| 6 | Project detail | `/project/[id]` | `GET /projects/:id`, `GET /contracts/:id` | tabs: Overview (real), Payments (milestones+ledger), Timeline (dates), Files (stub) |
-| 7 | Pro profile | `/professional/[id]` | `GET /professionals/:id` | stats row, About, Message/Hire Me |
-| 8 | Portfolio/Reviews | `/professional/[id]` tabs | portfolio + reviews endpoints | grid + rating breakdown |
-| 9 | Edit profile | `/settings/profile` | `PATCH /me` | react-hook-form, Save Changes |
-| 10 | Wallet | `/(tabs)/wallet` | `GET /wallet` | escrow balance card (locked), transaction feed |
-| 11 | Reviews | `/reviews/[userId]` | `GET /users/:id/reviews` | big score + breakdown + review cards |
-| 12 | Settings | `/settings` | `GET /auth/me` | opened from the Home header avatar (no More tab); list rows, Verification, Log Out |
-| 13 | Discover (marketplace) | `/(tabs)/discover` | `GET /categories`, `GET /professionals?category&search&sort` | search bar, filter/sort chips, trade-category grid, top-rated pro list → routes to pro profile |
+| #   | Screen                 | Route                     | Data / endpoint                                              | Notes                                                                                                                                  |
+| --- | ---------------------- | ------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Landing                | `/(auth)/landing`         | —                                                            | Get Started / Log In                                                                                                                   |
+| 2   | Login                  | `/(auth)/login`           | `POST /auth/login`                                           | email + password, show/hide toggle                                                                                                     |
+| 3   | Register               | `/(auth)/register`        | `POST /auth/register`                                        | + T&S checkbox                                                                                                                         |
+| 4   | Role select            | `/(auth)/role`            | `POST /auth/role`                                            | two selectable cards, Continue                                                                                                         |
+| 5   | Home (hub)             | `/(tabs)/home`            | `GET /home/summary`, `GET /me/action-items`, `GET /projects` | Action Required list, budget overview, richer project cards, New Project; slim search bar routes to Discover; header avatar → Settings |
+| 6   | Project detail         | `/project/[id]`           | `GET /projects/:id`, `GET /contracts/:id`                    | tabs: Overview (real), Payments (milestones+ledger), Timeline (dates), Files (stub)                                                    |
+| 7   | Pro profile            | `/professional/[id]`      | `GET /professionals/:id`                                     | stats row, About, Message/Hire Me                                                                                                      |
+| 8   | Portfolio/Reviews      | `/professional/[id]` tabs | portfolio + reviews endpoints                                | grid + rating breakdown                                                                                                                |
+| 9   | Edit profile           | `/settings/profile`       | `PATCH /me`                                                  | react-hook-form, Save Changes                                                                                                          |
+| 10  | Wallet                 | `/(tabs)/wallet`          | `GET /wallet`                                                | escrow balance card (locked), transaction feed                                                                                         |
+| 11  | Reviews                | `/reviews/[userId]`       | `GET /users/:id/reviews`                                     | big score + breakdown + review cards                                                                                                   |
+| 12  | Settings               | `/settings`               | `GET /auth/me`                                               | opened from the Home header avatar (no More tab); list rows, Verification, Log Out                                                     |
+| 13  | Discover (marketplace) | `/(tabs)/discover`        | `GET /categories`, `GET /professionals?category&search&sort` | search bar, filter/sort chips, trade-category grid, top-rated pro list → routes to pro profile                                         |
 
 Every data screen needs **loading, empty, and error** states, plus pull-to-refresh on lists.
 
@@ -248,13 +257,13 @@ All amounts seeded in **agorot**.
 
 ## 11. Phased build plan (each phase ends green + committed)
 
-- **Phase 0 — Scaffold.** pnpm workspaces + Turborepo; `apps/api`, `apps/mobile`, `packages/shared`; TS strict, ESLint, Prettier, `.env.example`. *Done when both apps boot and typecheck.*
-- **Phase 1 — Backend foundation.** Prisma schema (section 4) + migration + Postgres; auth (register/login/JWT/bcrypt), `/auth/me`, `/auth/role`; seed script (section 10). *Done when auth works via HTTP and the DB is seeded.*
-- **Phase 2 — Backend domain.** projects, contracts, milestones, escrow ledger + `PaymentPort` mock, wallet, professionals + portfolio, reviews. **Vitest tests for the escrow invariants (section 5).** *Done when the trust loop works over HTTP and tests pass.*
-- **Phase 3 — Shared package.** All Zod schemas + inferred types + typed `apiClient`; backend switched to validate against them. *Done when app and api share one type source.*
-- **Phase 4 — Mobile foundation.** Expo + expo-router + NativeWind theme (section 7) + TanStack Query + auth store; screens 1–4 + auth gate. *Done when a user can register, pick a role, log in, and land in tabs.*
-- **Phase 5 — Mobile main.** Tab nav + screens 5–12 wired to the API, using the shared UI kit. *Done when every mockup screen is navigable and shows real seeded data.*
-- **Phase 6 — Polish.** Loading/empty/error states, form validation, pull-to-refresh; side-by-side pass against the mockups. *Done when the app matches the designs.*
+- **Phase 0 — Scaffold.** pnpm workspaces + Turborepo; `apps/api`, `apps/mobile`, `packages/shared`; TS strict, ESLint, Prettier, `.env.example`. _Done when both apps boot and typecheck._
+- **Phase 1 — Backend foundation.** Prisma schema (section 4) + migration + Postgres; auth (register/login/JWT/bcrypt), `/auth/me`, `/auth/role`; seed script (section 10). _Done when auth works via HTTP and the DB is seeded._
+- **Phase 2 — Backend domain.** projects, contracts, milestones, escrow ledger + `PaymentPort` mock, wallet, professionals + portfolio, reviews. **Vitest tests for the escrow invariants (section 5).** _Done when the trust loop works over HTTP and tests pass._
+- **Phase 3 — Shared package.** All Zod schemas + inferred types + typed `apiClient`; backend switched to validate against them. _Done when app and api share one type source._
+- **Phase 4 — Mobile foundation.** Expo + expo-router + NativeWind theme (section 7) + TanStack Query + auth store; screens 1–4 + auth gate. _Done when a user can register, pick a role, log in, and land in tabs._
+- **Phase 5 — Mobile main.** Tab nav + screens 5–12 wired to the API, using the shared UI kit. _Done when every mockup screen is navigable and shows real seeded data._
+- **Phase 6 — Polish.** Loading/empty/error states, form validation, pull-to-refresh; side-by-side pass against the mockups. _Done when the app matches the designs._
 
 ---
 
@@ -262,9 +271,12 @@ All amounts seeded in **agorot**.
 
 - Automated 14-trade sequencing engine, budget-variance analytics, cascading schedule engine (vision, not alpha).
 - Real payment provider (Stripe Connect) — mock only.
-- Messaging/chat (stub the Messages tab and message buttons).
 - File uploads (stub the Files tab).
 - Google / Apple OAuth — keep the buttons but implement **email/password only**; wire OAuth later.
+
+Messaging/chat was added post-v1-kickoff as an in-scope module: conversations,
+threads, and unread badges are built (polling-based real-time; see the module
+for the WebSocket seam). It is no longer stubbed.
 
 ---
 

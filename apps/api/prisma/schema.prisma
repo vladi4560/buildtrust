@@ -67,11 +67,13 @@ model User {
   updatedAt    DateTime  @updatedAt
 
   professionalProfile ProfessionalProfile?
-  projects            Project[]            @relation("ClientProjects")
-  contractsAsClient   Contract[]           @relation("ClientContracts")
-  contractsAsPro      Contract[]           @relation("ProfessionalContracts")
-  reviewsAuthored     Review[]             @relation("ReviewAuthor")
-  reviewsReceived     Review[]             @relation("ReviewSubject")
+  projects            Project[]                 @relation("ClientProjects")
+  contractsAsClient   Contract[]                @relation("ClientContracts")
+  contractsAsPro      Contract[]                @relation("ProfessionalContracts")
+  reviewsAuthored     Review[]                  @relation("ReviewAuthor")
+  reviewsReceived     Review[]                  @relation("ReviewSubject")
+  conversationsIn     ConversationParticipant[]
+  messagesSent        Message[]
 
   @@map("users")
 }
@@ -129,18 +131,19 @@ model PortfolioItem {
 }
 
 model Project {
-  id             String        @id @default(cuid())
-  clientId       String
-  client         User          @relation("ClientProjects", fields: [clientId], references: [id], onDelete: Cascade)
-  title          String
-  sizeLabel      String?
-  description    String?
-  status         ProjectStatus @default(PLANNING)
-  budgetPlanned  Int
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id            String        @id @default(cuid())
+  clientId      String
+  client        User          @relation("ClientProjects", fields: [clientId], references: [id], onDelete: Cascade)
+  title         String
+  sizeLabel     String?
+  description   String?
+  status        ProjectStatus @default(PLANNING)
+  budgetPlanned Int
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  contracts Contract[]
+  contracts     Contract[]
+  conversations Conversation[]
 
   @@index([clientId])
   @@map("projects")
@@ -164,9 +167,10 @@ model Contract {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
-  milestones   Milestone[]
+  milestones    Milestone[]
   ledgerEntries LedgerEntry[]
-  reviews      Review[]
+  reviews       Review[]
+  conversations Conversation[]
 
   @@index([projectId])
   @@index([clientId])
@@ -175,18 +179,18 @@ model Contract {
 }
 
 model Milestone {
-  id          String          @id @default(cuid())
-  contractId  String
-  contract    Contract        @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  order       Int
-  title       String
-  amount      Int
-  status      MilestoneStatus @default(PENDING)
-  dueDate     DateTime?
-  approvedAt  DateTime?
-  releasedAt  DateTime?
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id         String          @id @default(cuid())
+  contractId String
+  contract   Contract        @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  order      Int
+  title      String
+  amount     Int
+  status     MilestoneStatus @default(PENDING)
+  dueDate    DateTime?
+  approvedAt DateTime?
+  releasedAt DateTime?
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
 
   ledgerEntries LedgerEntry[]
 
@@ -227,4 +231,47 @@ model Review {
   @@index([contractId])
   @@index([subjectId])
   @@map("reviews")
+}
+
+model Conversation {
+  id            String    @id @default(cuid())
+  projectId     String?
+  project       Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  contractId    String?
+  contract      Contract? @relation(fields: [contractId], references: [id], onDelete: SetNull)
+  createdAt     DateTime  @default(now())
+  lastMessageAt DateTime  @default(now())
+
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([projectId])
+  @@index([contractId])
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadAt     DateTime     @default(now())
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id])
+  body           String
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
 }

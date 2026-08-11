@@ -6,6 +6,7 @@ import { prismaPlugin } from "./plugins/prisma.js";
 import { authRoutes } from "./modules/auth/routes.js";
 import { categoryRoutes } from "./modules/categories/routes.js";
 import { contractRoutes } from "./modules/contracts/routes.js";
+import { conversationRoutes } from "./modules/conversations/routes.js";
 import { escrowRoutes } from "./modules/escrow/routes.js";
 import { homeRoutes } from "./modules/home/routes.js";
 import { milestoneRoutes } from "./modules/milestones/routes.js";
@@ -40,6 +41,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(escrowRoutes, { prefix: "/escrow" });
   await app.register(walletRoutes, { prefix: "/wallet" });
   await app.register(homeRoutes);
+  await app.register(conversationRoutes);
 
   return app;
 }
