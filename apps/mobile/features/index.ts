@@ -1,3 +1,4 @@
+export * from "./categories";
 export * from "./contracts";
 export * from "./escrow";
 export * from "./milestones";
