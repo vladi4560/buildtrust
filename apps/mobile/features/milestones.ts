@@ -9,6 +9,7 @@ function useMilestoneAction(action: (id: string) => Promise<unknown>) {
       queryClient.invalidateQueries({ queryKey: ["contracts"] });
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       queryClient.invalidateQueries({ queryKey: ["wallet"] });
+      queryClient.invalidateQueries({ queryKey: ["home"] });
     },
   });
 }

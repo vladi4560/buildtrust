@@ -29,13 +29,13 @@ export default function NewProject() {
   });
 
   const onSubmit = async (values: FormValues) => {
-    const project = await createProject.mutateAsync({
+    await createProject.mutateAsync({
       title: values.title,
       sizeLabel: values.sizeLabel || undefined,
       description: values.description || undefined,
       budgetPlanned: Math.round(values.budgetShekels * 100),
     });
-    router.replace(`/project/${project.id}`);
+    router.replace("/(tabs)/home");
   };
 
   return (

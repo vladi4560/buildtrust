@@ -25,11 +25,15 @@ import { formatMoney, useAuthStore } from "../../lib";
 const TABS = ["Overview", "Payments", "Timeline", "Files"] as const;
 type Tab = (typeof TABS)[number];
 
+function isTab(value: string | undefined): value is Tab {
+  return !!value && (TABS as readonly string[]).includes(value);
+}
+
 export default function ProjectDetail() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, tab: initialTab } = useLocalSearchParams<{ id: string; tab?: string }>();
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
-  const [tab, setTab] = useState<Tab>("Overview");
+  const [tab, setTab] = useState<Tab>(isTab(initialTab) ? initialTab : "Overview");
 
   const projectQuery = useProject(id);
   const contractId = projectQuery.data?.activeContract?.id;

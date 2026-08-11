@@ -1,6 +1,7 @@
 export * from "./categories";
 export * from "./contracts";
 export * from "./escrow";
+export * from "./home";
 export * from "./milestones";
 export * from "./professionals";
 export * from "./projects";

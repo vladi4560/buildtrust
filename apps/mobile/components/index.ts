@@ -1,4 +1,5 @@
 export * from "./avatar";
+export * from "./budget-bar";
 export * from "./button";
 export * from "./card";
 export * from "./category-tile";
