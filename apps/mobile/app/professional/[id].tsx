@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Alert, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -13,7 +13,12 @@ import {
   RatingBreakdown,
   StarRating,
 } from "../../components";
-import { usePortfolio, useProfessional, useUserReviews } from "../../features";
+import {
+  useCreateConversation,
+  usePortfolio,
+  useProfessional,
+  useUserReviews,
+} from "../../features";
 import { useAuthStore } from "../../lib";
 
 const TABS = ["Portfolio", "Reviews"] as const;
@@ -28,6 +33,7 @@ export default function ProfessionalProfile() {
   const professionalQuery = useProfessional(id);
   const portfolioQuery = usePortfolio(id);
   const reviewsQuery = useUserReviews(id);
+  const createConversation = useCreateConversation();
 
   if (professionalQuery.isPending) {
     return (
@@ -111,7 +117,25 @@ export default function ProfessionalProfile() {
               <Button
                 label="Message"
                 variant="outline"
-                onPress={() => Alert.alert("Coming soon", "Messaging isn't available yet.")}
+                loading={createConversation.isPending}
+                onPress={() =>
+                  createConversation.mutate(
+                    { participantId: pro.id },
+                    {
+                      onSuccess: (conversation) =>
+                        router.push({
+                          pathname: "/messages/[id]",
+                          params: {
+                            id: conversation.id,
+                            otherName: conversation.otherParticipant.fullName,
+                            otherAvatarUrl: conversation.otherParticipant.avatarUrl ?? "",
+                            projectId: conversation.project?.id ?? "",
+                            projectTitle: conversation.project?.title ?? "",
+                          },
+                        }),
+                    },
+                  )
+                }
               />
             </View>
             <View className="flex-1">

@@ -15,6 +15,7 @@ import {
 } from "../../components";
 import {
   useContract,
+  useCreateConversation,
   useDeposit,
   useProject,
   useSubmitMilestone,
@@ -42,6 +43,7 @@ export default function ProjectDetail() {
   const submitMilestone = useSubmitMilestone();
   const approveMilestone = useApproveMilestone();
   const deposit = useDeposit();
+  const createConversation = useCreateConversation();
 
   if (projectQuery.isPending) {
     return (
@@ -107,6 +109,31 @@ export default function ProjectDetail() {
                 </Text>
               </View>
             </Card>
+            {project.contractor && user?.id !== project.contractor.id ? (
+              <Button
+                label={`Message ${project.contractor.fullName}`}
+                variant="outline"
+                loading={createConversation.isPending}
+                onPress={() =>
+                  createConversation.mutate(
+                    { participantId: project.contractor!.id, projectId: project.id },
+                    {
+                      onSuccess: (conversation) =>
+                        router.push({
+                          pathname: "/messages/[id]",
+                          params: {
+                            id: conversation.id,
+                            otherName: conversation.otherParticipant.fullName,
+                            otherAvatarUrl: conversation.otherParticipant.avatarUrl ?? "",
+                            projectId: conversation.project?.id ?? "",
+                            projectTitle: conversation.project?.title ?? "",
+                          },
+                        }),
+                    },
+                  )
+                }
+              />
+            ) : null}
             {!contract ? <EmptyState message="No contract yet for this project." /> : null}
           </View>
         ) : null}

@@ -1,5 +1,6 @@
 export * from "./categories";
 export * from "./contracts";
+export * from "./conversations";
 export * from "./escrow";
 export * from "./home";
 export * from "./milestones";

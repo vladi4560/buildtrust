@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import { useUnreadCount } from "../../features";
 import { colors } from "../../theme/tokens";
 
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -12,6 +13,8 @@ function tabIcon(outline: IconName, filled: IconName) {
 }
 
 export default function TabsLayout() {
+  const unreadCount = useUnreadCount();
+
   return (
     <Tabs
       screenOptions={{
@@ -38,6 +41,7 @@ export default function TabsLayout() {
         options={{
           title: "Messages",
           tabBarIcon: tabIcon("chatbubbles-outline", "chatbubbles"),
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
         }}
       />
       <Tabs.Screen
