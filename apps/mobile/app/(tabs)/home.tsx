@@ -43,6 +43,14 @@ export default function Home() {
             </Text>
           </Card>
 
+          {user?.role === "CLIENT" ? (
+            <Button
+              label="Find a Professional"
+              variant="outline"
+              onPress={() => router.push("/professionals")}
+            />
+          ) : null}
+
           <View className="gap-3">
             <View className="flex-row items-center justify-between">
               <Text className="text-lg font-semibold text-ink">Your Projects</Text>

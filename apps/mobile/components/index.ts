@@ -2,6 +2,7 @@ export * from "./avatar";
 export * from "./button";
 export * from "./card";
 export * from "./chip";
+export * from "./professional-card";
 export * from "./progress-bar";
 export * from "./project-card";
 export * from "./rating-breakdown";
