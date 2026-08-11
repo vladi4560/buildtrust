@@ -23,7 +23,7 @@ export async function professionalRoutes(app: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const professionals = await professionalsService.list(request.query.skill);
+      const professionals = await professionalsService.list(request.query);
       reply.status(200).send(professionals);
     },
   );

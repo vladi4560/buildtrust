@@ -1,7 +1,14 @@
 import { z } from "zod";
+import { categorySchema } from "./categories.js";
+
+export const professionalSortSchema = z.enum(["rating", "price", "distance"]);
+export type ProfessionalSort = z.infer<typeof professionalSortSchema>;
 
 export const listProfessionalsQuerySchema = z.object({
   skill: z.string().optional(),
+  category: z.string().optional(),
+  search: z.string().optional(),
+  sort: professionalSortSchema.optional(),
 });
 export type ListProfessionalsQuery = z.infer<typeof listProfessionalsQuerySchema>;
 
@@ -21,6 +28,9 @@ export const professionalSchema = z.object({
   projectsCount: z.number().int(),
   rating: z.number(),
   reviewCount: z.number().int(),
+  dailyRate: z.number().int(),
+  available: z.boolean(),
+  categories: z.array(categorySchema),
 });
 export type Professional = z.infer<typeof professionalSchema>;
 

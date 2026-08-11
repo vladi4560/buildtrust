@@ -4,6 +4,7 @@ import { errorHandlerPlugin } from "./plugins/error-handler.js";
 import { jwtPlugin } from "./plugins/jwt.js";
 import { prismaPlugin } from "./plugins/prisma.js";
 import { authRoutes } from "./modules/auth/routes.js";
+import { categoryRoutes } from "./modules/categories/routes.js";
 import { contractRoutes } from "./modules/contracts/routes.js";
 import { escrowRoutes } from "./modules/escrow/routes.js";
 import { milestoneRoutes } from "./modules/milestones/routes.js";
@@ -28,6 +29,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   });
 
   await app.register(authRoutes, { prefix: "/auth" });
+  await app.register(categoryRoutes, { prefix: "/categories" });
   await app.register(userRoutes);
   await app.register(professionalRoutes, { prefix: "/professionals" });
   await app.register(reviewRoutes, { prefix: "/reviews" });

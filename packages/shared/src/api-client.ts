@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { authResponseSchema, userResponseSchema } from "./schemas/auth.js";
+import { categoriesResponseSchema } from "./schemas/categories.js";
 import { contractSchema } from "./schemas/contracts.js";
 import { depositResponseSchema } from "./schemas/escrow.js";
 import { milestoneResponseSchema } from "./schemas/milestones.js";
@@ -22,6 +23,7 @@ import type {
   Professional,
   PortfolioItem,
 } from "./schemas/professionals.js";
+import type { Category } from "./schemas/categories.js";
 import type { CreateProjectBody, ProjectDetail, ProjectSummary } from "./schemas/projects.js";
 import type { CreateReviewBody, Review, UserReviewsResponse } from "./schemas/reviews.js";
 import type { UpdateMeBody } from "./schemas/users.js";
@@ -103,6 +105,10 @@ export function createApiClient(config: ApiClientConfig) {
       setRole: (body: SetRoleBody): Promise<UserResponse> =>
         request("POST", "/auth/role", { body, schema: userResponseSchema }),
       me: (): Promise<UserResponse> => request("GET", "/auth/me", { schema: userResponseSchema }),
+    },
+    categories: {
+      list: (): Promise<Category[]> =>
+        request("GET", "/categories", { schema: categoriesResponseSchema }),
     },
     users: {
       updateMe: (body: UpdateMeBody): Promise<UserResponse> =>

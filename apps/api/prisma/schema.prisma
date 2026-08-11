@@ -84,12 +84,36 @@ model ProfessionalProfile {
   skills          String[]
   onTimePercent   Int      @default(100)
   projectsCount   Int      @default(0)
+  dailyRate       Int      @default(0)
+  available       Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   portfolioItems PortfolioItem[]
+  categories     ProfessionalCategory[]
 
   @@map("professional_profiles")
+}
+
+model Category {
+  id   String  @id @default(cuid())
+  name String  @unique
+  slug String  @unique
+  icon String?
+
+  professionals ProfessionalCategory[]
+
+  @@map("categories")
+}
+
+model ProfessionalCategory {
+  professionalId String
+  professional   ProfessionalProfile @relation(fields: [professionalId], references: [userId], onDelete: Cascade)
+  categoryId     String
+  category       Category            @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([professionalId, categoryId])
+  @@map("professional_categories")
 }
 
 model PortfolioItem {

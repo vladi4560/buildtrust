@@ -16,6 +16,22 @@ const LEDGER_ACCOUNTS: Record<LedgerEntryType, { debit: LedgerAccount; credit: L
   REFUND: { debit: "CLIENT_ESCROW", credit: "PLATFORM_HOLD" },
 };
 
+// Trade taxonomy for the Discover marketplace (BUILD_SPEC section 4/7/8).
+// Icon names are Ionicons (@expo/vector-icons), rendered by CategoryTile.
+const CATEGORY_TAXONOMY = [
+  { name: "Electrical", slug: "electrical", icon: "flash-outline" },
+  { name: "Plumbing", slug: "plumbing", icon: "water-outline" },
+  { name: "Flooring", slug: "flooring", icon: "square-outline" },
+  { name: "Painting", slug: "painting", icon: "color-palette-outline" },
+  { name: "HVAC", slug: "hvac", icon: "thermometer-outline" },
+  { name: "Carpentry", slug: "carpentry", icon: "hammer-outline" },
+  { name: "Kitchens", slug: "kitchens", icon: "restaurant-outline" },
+  { name: "Structural", slug: "structural", icon: "business-outline" },
+  { name: "Waterproofing", slug: "waterproofing", icon: "umbrella-outline" },
+  { name: "Aluminum & Glass", slug: "aluminum-glass", icon: "browsers-outline" },
+  { name: "Drywall", slug: "drywall", icon: "layers-outline" },
+] as const;
+
 async function main() {
   console.log("Wiping existing data...");
   await prisma.review.deleteMany();
@@ -24,10 +40,18 @@ async function main() {
   await prisma.contract.deleteMany();
   await prisma.portfolioItem.deleteMany();
   await prisma.project.deleteMany();
+  await prisma.professionalCategory.deleteMany();
+  await prisma.category.deleteMany();
   await prisma.professionalProfile.deleteMany();
   await prisma.user.deleteMany();
 
   const passwordHash = await bcrypt.hash("password123", 12);
+
+  console.log("Seeding categories...");
+  const categories = await Promise.all(
+    CATEGORY_TAXONOMY.map((category) => prisma.category.create({ data: category })),
+  );
+  const flooringCategory = categories.find((c) => c.slug === "flooring")!;
 
   console.log("Seeding users...");
   const john = await prisma.user.create({
@@ -60,7 +84,13 @@ async function main() {
       skills: ["Parquet", "Laminate", "VINYL", "Floor Leveling"],
       onTimePercent: 98,
       projectsCount: 3,
+      dailyRate: 800_00,
+      available: true,
     },
+  });
+
+  await prisma.professionalCategory.create({
+    data: { professionalId: david.id, categoryId: flooringCategory.id },
   });
 
   console.log("Seeding portfolio...");
