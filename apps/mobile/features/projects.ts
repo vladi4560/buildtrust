@@ -1,9 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { CreateProjectBody } from "@buildtrust/shared";
+import type { CreateProjectBody, ListProjectsQuery } from "@buildtrust/shared";
 import { apiClient } from "../lib/api-client";
 
-export function useProjects() {
-  return useQuery({ queryKey: ["projects"], queryFn: () => apiClient.projects.list() });
+export function useProjects(query: ListProjectsQuery = {}) {
+  return useQuery({
+    queryKey: ["projects", query],
+    queryFn: () => apiClient.projects.list(query),
+  });
 }
 
 export function useProject(id: string) {
