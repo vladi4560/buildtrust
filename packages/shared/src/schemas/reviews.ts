@@ -29,10 +29,17 @@ export const reviewBreakdownSchema = z.object({
   1: z.number().int(),
 });
 
+export const userReviewsQuerySchema = z.object({
+  before: z.coerce.date().optional(),
+  limit: z.coerce.number().int().positive().max(50).optional(),
+});
+export type UserReviewsQuery = z.infer<typeof userReviewsQuerySchema>;
+
 export const userReviewsResponseSchema = z.object({
   average: z.number(),
   count: z.number().int(),
   breakdown: reviewBreakdownSchema,
   reviews: z.array(reviewSchema),
+  hasMore: z.boolean(),
 });
 export type UserReviewsResponse = z.infer<typeof userReviewsResponseSchema>;

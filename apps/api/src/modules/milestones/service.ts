@@ -22,7 +22,7 @@ export function createMilestonesService(prisma: PrismaClient, paymentPort: Payme
 
       const result = await prisma.milestone.updateMany({
         where: { id: milestoneId, status: { in: ["PENDING", "IN_PROGRESS"] } },
-        data: { status: "SUBMITTED" },
+        data: { status: "SUBMITTED", submittedAt: new Date() },
       });
       if (result.count === 0) {
         throw new ConflictError("Milestone is not awaiting submission");

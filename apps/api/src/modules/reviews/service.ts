@@ -1,15 +1,23 @@
 import type { PrismaClient } from "@prisma/client";
 import { ConflictError, ForbiddenError, NotFoundError } from "../../lib/app-error.js";
-import type { CreateReviewBody } from "@buildtrust/shared";
+import type { CreateReviewBody, UserReviewsQuery } from "@buildtrust/shared";
 
 export function createReviewsService(prisma: PrismaClient) {
   return {
-    async listForUser(userId: string) {
-      return prisma.review.findMany({
-        where: { subjectId: userId },
+    async listForUser(userId: string, query: UserReviewsQuery = {}) {
+      const limit = query.limit ?? 10;
+      const page = await prisma.review.findMany({
+        where: {
+          subjectId: userId,
+          ...(query.before ? { createdAt: { lt: query.before } } : {}),
+        },
         include: { author: { select: { id: true, fullName: true, avatarUrl: true } } },
         orderBy: { createdAt: "desc" },
+        take: limit + 1,
       });
+
+      const hasMore = page.length > limit;
+      return { reviews: page.slice(0, limit), hasMore };
     },
 
     async getStatsForUser(userId: string) {

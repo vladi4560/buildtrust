@@ -20,11 +20,52 @@ type UserWithProfile = User & {
 export function createProfessionalsService(prisma: PrismaClient) {
   const reviewsService = createReviewsService(prisma);
 
+  /**
+   * projectsCount / onTimePercent are derived from real contract/milestone
+   * data rather than read off ProfessionalProfile's static columns (those
+   * columns exist only as seed defaults now). "Project" = any contract that
+   * has actually started (excludes DRAFT, which never got funded). "On time"
+   * compares submission against the milestone's own due date, not release -
+   * release always lags due date by however long the client takes to
+   * approve, so comparing against releasedAt would penalize professionals
+   * for their clients' review speed.
+   */
+  async function computeDerivedStats(professionalId: string) {
+    const contracts = await prisma.contract.findMany({
+      where: { professionalId },
+      select: {
+        status: true,
+        milestones: { select: { status: true, dueDate: true, submittedAt: true } },
+      },
+    });
+
+    const projectsCount = contracts.filter((contract) => contract.status !== "DRAFT").length;
+
+    const releasedWithDueDate = contracts
+      .flatMap((contract) => contract.milestones)
+      .filter(
+        (milestone): milestone is typeof milestone & { dueDate: Date; submittedAt: Date } =>
+          milestone.status === "RELEASED" && !!milestone.dueDate && !!milestone.submittedAt,
+      );
+    const onTimeCount = releasedWithDueDate.filter(
+      (milestone) => milestone.submittedAt <= milestone.dueDate,
+    ).length;
+    const onTimePercent =
+      releasedWithDueDate.length === 0
+        ? 100
+        : Math.round((onTimeCount / releasedWithDueDate.length) * 100);
+
+    return { projectsCount, onTimePercent };
+  }
+
   async function toProfessionalDto(user: UserWithProfile) {
     if (!user.professionalProfile) {
       throw new NotFoundError("Professional not found");
     }
-    const stats = await reviewsService.getStatsForUser(user.id);
+    const [stats, derived] = await Promise.all([
+      reviewsService.getStatsForUser(user.id),
+      computeDerivedStats(user.id),
+    ]);
 
     return {
       id: user.id,
@@ -36,8 +77,8 @@ export function createProfessionalsService(prisma: PrismaClient) {
       specialty: user.professionalProfile.specialty,
       yearsExperience: user.professionalProfile.yearsExperience,
       skills: user.professionalProfile.skills,
-      onTimePercent: user.professionalProfile.onTimePercent,
-      projectsCount: user.professionalProfile.projectsCount,
+      onTimePercent: derived.onTimePercent,
+      projectsCount: derived.projectsCount,
       rating: stats.average,
       reviewCount: stats.count,
       dailyRate: user.professionalProfile.dailyRate,

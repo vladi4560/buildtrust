@@ -179,18 +179,19 @@ model Contract {
 }
 
 model Milestone {
-  id         String          @id @default(cuid())
-  contractId String
-  contract   Contract        @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  order      Int
-  title      String
-  amount     Int
-  status     MilestoneStatus @default(PENDING)
-  dueDate    DateTime?
-  approvedAt DateTime?
-  releasedAt DateTime?
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
+  id          String          @id @default(cuid())
+  contractId  String
+  contract    Contract        @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  order       Int
+  title       String
+  amount      Int
+  status      MilestoneStatus @default(PENDING)
+  dueDate     DateTime?
+  submittedAt DateTime?
+  approvedAt  DateTime?
+  releasedAt  DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   ledgerEntries LedgerEntry[]
 

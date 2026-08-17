@@ -42,7 +42,12 @@ import type {
 import type { Category } from "./schemas/categories.js";
 import type { ActionItem, HomeSummary } from "./schemas/home.js";
 import type { CreateProjectBody, ProjectDetail, ProjectSummary } from "./schemas/projects.js";
-import type { CreateReviewBody, Review, UserReviewsResponse } from "./schemas/reviews.js";
+import type {
+  CreateReviewBody,
+  Review,
+  UserReviewsQuery,
+  UserReviewsResponse,
+} from "./schemas/reviews.js";
 import type { UpdateMeBody } from "./schemas/users.js";
 import type { WalletResponse } from "./schemas/wallet.js";
 
@@ -136,8 +141,11 @@ export function createApiClient(config: ApiClientConfig) {
     users: {
       updateMe: (body: UpdateMeBody): Promise<UserResponse> =>
         request("PATCH", "/me", { body, schema: userResponseSchema }),
-      reviews: (userId: string): Promise<UserReviewsResponse> =>
-        request("GET", `/users/${userId}/reviews`, { schema: userReviewsResponseSchema }),
+      reviews: (userId: string, query?: UserReviewsQuery): Promise<UserReviewsResponse> =>
+        request("GET", `/users/${userId}/reviews`, {
+          query: { before: query?.before?.toISOString(), limit: query?.limit?.toString() },
+          schema: userReviewsResponseSchema,
+        }),
     },
     professionals: {
       list: (query?: ListProfessionalsQuery): Promise<Professional[]> =>

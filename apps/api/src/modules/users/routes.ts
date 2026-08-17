@@ -6,6 +6,7 @@ import {
   updateMeBodySchema,
   userIdParamsSchema,
   userResponseSchema,
+  userReviewsQuerySchema,
   userReviewsResponseSchema,
 } from "@buildtrust/shared";
 import { createUsersService } from "./service.js";
@@ -31,14 +32,18 @@ export async function userRoutes(app: FastifyInstance) {
     "/users/:id/reviews",
     {
       preHandler: [app.authenticate],
-      schema: { params: userIdParamsSchema, response: { 200: userReviewsResponseSchema } },
+      schema: {
+        params: userIdParamsSchema,
+        querystring: userReviewsQuerySchema,
+        response: { 200: userReviewsResponseSchema },
+      },
     },
     async (request, reply) => {
-      const [stats, reviews] = await Promise.all([
+      const [stats, page] = await Promise.all([
         reviewsService.getStatsForUser(request.params.id),
-        reviewsService.listForUser(request.params.id),
+        reviewsService.listForUser(request.params.id, request.query),
       ]);
-      reply.status(200).send({ ...stats, reviews });
+      reply.status(200).send({ ...stats, ...page });
     },
   );
 }
