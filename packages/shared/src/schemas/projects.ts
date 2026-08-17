@@ -11,6 +11,11 @@ export type CreateProjectBody = z.infer<typeof createProjectBodySchema>;
 
 export const projectIdParamsSchema = z.object({ id: z.string() });
 
+export const listProjectsQuerySchema = z.object({
+  status: projectStatusSchema.optional(),
+});
+export type ListProjectsQuery = z.infer<typeof listProjectsQuerySchema>;
+
 const contractorSchema = z.object({
   id: z.string(),
   fullName: z.string(),

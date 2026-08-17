@@ -41,7 +41,12 @@ import type {
 } from "./schemas/professionals.js";
 import type { Category } from "./schemas/categories.js";
 import type { ActionItem, HomeSummary } from "./schemas/home.js";
-import type { CreateProjectBody, ProjectDetail, ProjectSummary } from "./schemas/projects.js";
+import type {
+  CreateProjectBody,
+  ListProjectsQuery,
+  ProjectDetail,
+  ProjectSummary,
+} from "./schemas/projects.js";
 import type {
   CreateReviewBody,
   Review,
@@ -156,8 +161,8 @@ export function createApiClient(config: ApiClientConfig) {
         request("GET", `/professionals/${id}/portfolio`, { schema: z.array(portfolioItemSchema) }),
     },
     projects: {
-      list: (): Promise<ProjectSummary[]> =>
-        request("GET", "/projects", { schema: z.array(projectSummarySchema) }),
+      list: (query?: ListProjectsQuery): Promise<ProjectSummary[]> =>
+        request("GET", "/projects", { query, schema: z.array(projectSummarySchema) }),
       create: (body: CreateProjectBody): Promise<ProjectSummary> =>
         request("POST", "/projects", { body, schema: projectSummarySchema }),
       get: (id: string): Promise<ProjectDetail> =>

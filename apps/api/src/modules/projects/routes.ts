@@ -4,6 +4,7 @@ import { z } from "zod";
 import { ForbiddenError } from "../../lib/app-error.js";
 import {
   createProjectBodySchema,
+  listProjectsQuerySchema,
   projectDetailSchema,
   projectIdParamsSchema,
   projectSummarySchema,
@@ -18,11 +19,14 @@ export async function projectRoutes(app: FastifyInstance) {
     "/",
     {
       preHandler: [app.authenticate],
-      schema: { response: { 200: z.array(projectSummarySchema) } },
+      schema: {
+        querystring: listProjectsQuerySchema,
+        response: { 200: z.array(projectSummarySchema) },
+      },
     },
     async (request, reply) => {
       const user = await app.prisma.user.findUniqueOrThrow({ where: { id: request.user.sub } });
-      const projects = await projectsService.listForUser(user);
+      const projects = await projectsService.listForUser(user, request.query);
       reply.status(200).send(projects);
     },
   );

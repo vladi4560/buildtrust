@@ -1,5 +1,5 @@
 import type { PrismaClient, Project, User } from "@prisma/client";
-import type { CreateProjectBody } from "@buildtrust/shared";
+import type { CreateProjectBody, ListProjectsQuery } from "@buildtrust/shared";
 import { ForbiddenError, NotFoundError } from "../../lib/app-error.js";
 import { getContractLedgerTotals } from "../../lib/ledger.js";
 import { createReviewsService } from "../reviews/service.js";
@@ -54,15 +54,21 @@ export function createProjectsService(prisma: PrismaClient) {
   }
 
   return {
-    async listForUser(user: Pick<User, "id" | "role">) {
+    async listForUser(user: Pick<User, "id" | "role">, query: ListProjectsQuery = {}) {
       const projects =
         user.role === "PROFESSIONAL"
           ? await prisma.project.findMany({
-              where: { contracts: { some: { professionalId: user.id } } },
+              where: {
+                contracts: { some: { professionalId: user.id } },
+                ...(query.status ? { status: query.status } : {}),
+              },
               orderBy: { createdAt: "desc" },
             })
           : await prisma.project.findMany({
-              where: { clientId: user.id },
+              where: {
+                clientId: user.id,
+                ...(query.status ? { status: query.status } : {}),
+              },
               orderBy: { createdAt: "desc" },
             });
 
